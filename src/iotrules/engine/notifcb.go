@@ -2,6 +2,10 @@ package engine
 
 import (
 	"encoding/json"
+	"time"
+
+	"code.google.com/p/go-uuid/uuid"
+
 	"iotrules/mylog"
 )
 
@@ -27,6 +31,8 @@ func NewNotifFromCB(ngsi []byte, service int) (n *Notif, err error) {
 	defer func() { mylog.Debugf("exit NewNotifFromCB (%+v,%v)\n", n, err) }()
 
 	n = &Notif{Data: map[string]interface{}{}}
+	n.ID = uuid.New()
+	n.Received = time.Now()
 
 	var ncr NotifyContextRequest
 	err = json.Unmarshal(ngsi, &ncr)
