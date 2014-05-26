@@ -1,0 +1,47 @@
+{
+  "subscriptionId" : "51c04a21d714fb3b37d7d5a7",
+  "originator" : "localhost",
+  "contextResponses" : [
+    {
+      "contextElement" :  {
+         "id":"AssetPerformanceCEP759",
+         "type":"ModelPerformanceCEP",
+         "isPattern":"false",
+         "attributes":[
+            {
+               "name":"TimeInstant",
+               "type":"urn:x-ogc:def:trs:IDAS:1.0:ISO8601",
+               "value":"2014-04-29T13:18:05Z"
+            },
+            {
+               "value":"12,10",
+               "name":"location",
+               "type":"Location",
+               "metadatas":[
+                  {
+                     "name":"location",
+                     "type":"string",
+                     "value":"WSG84"
+                  },
+                  {
+                     "name":"phenomenon",
+                     "type":"string",
+                     "value":"urn:x-ogc:def:phenomenon:IDAS:1.0:location"
+                  },
+                  {
+                     "name":"TimeInstant",
+                     "type":"urn:x-ogc:def:trs:IDAS:1.0:ISO8601",
+                     "value":"2014-04-29T13:18:05Z"
+                  }
+               ]
+            }
+         ]
+      },
+      "statusCode" : {
+        "code" : "200",
+        "reasonPhrase" : "OK"
+      }
+    }
+  ]
+}
+
