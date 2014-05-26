@@ -41,7 +41,7 @@ func (rj *RuleJSON) Rule() (pr *Rule, err error) {
 
 		opStr, ok := condJ.Expr[1].(string)
 		if !ok {
-			return nil, fmt.Errorf("operator should be an string")
+			return nil, fmt.Errorf("operator should be a string")
 		}
 		condR.Op, err = parseOp(opStr)
 		if err != nil {

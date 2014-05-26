@@ -6,9 +6,9 @@
       "contextElement" : {
         "attributes" : [
           {
-            "name" : "BloodPressure",
+            "name" : "a",
             "type" : "centigrade",
-            "value" : "6"
+            "value" : "2"
           },
 		{
             "name" : "TimeInstant",
