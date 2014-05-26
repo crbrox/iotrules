@@ -1,0 +1,10 @@
+{
+		"and": [ {"type":"number", "expr": ["$a","<",3]},
+		{"type":"number", "expr": ["$b.c","<",5]} ],
+		"axn": {
+			"type":"SMS",
+			"template":"\n\nHola NUEVO {{.nombre}}\n\n",
+			"parameters": {}
+		}
+	}
+

@@ -1,0 +1,9 @@
+{
+		"and": [ {"type":"number", "expr": ["$a","<",3]} ],
+		"axn": {
+			"type":"SMS",
+			"template":"\n\nHola NUEVO {{.nombre}}\n\n",
+			"parameters": {}
+		}
+	}
+
