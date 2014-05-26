@@ -11,6 +11,11 @@
             "value" : "2"
           },
 		{
+            "name" : "nombre",
+            "type" : "saludo ceremonial",
+            "value" : "¡¡Orion el Grande!!"
+          },
+		{
             "name" : "TimeInstant",
             "type" : "urn:x-ogc:def:trs:IDAS:1.0:ISO8601",
             "value" : "2014-04-29T13:18:05Z"
