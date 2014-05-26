@@ -74,7 +74,7 @@ func (rj *RuleJSON) Rule() (pr *Rule, err error) {
 }
 
 func ParseRuleJSON(data []byte) (rj *RuleJSON, err error) {
-	mylog.Debugf("enter ParseRuleJSON %+v", data)
+	mylog.Debugf("enter ParseRuleJSON %s", data)
 	defer func() { mylog.Debugf("exit ParseRuleJSON %+v  %+v", rj, err) }()
 
 	rj = &RuleJSON{}

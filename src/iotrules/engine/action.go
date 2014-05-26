@@ -2,7 +2,9 @@
 package engine
 
 import (
+	"bytes"
 	"fmt"
+	"net/smtp"
 	"os"
 	"text/template"
 
@@ -25,9 +27,9 @@ func (t ActionType) String() string {
 	case SMS:
 		s = "SMS"
 	case EMAIL:
-		s = "EMAIL"
+		s = "email"
 	case UPDATE:
-		s = "UPDATE"
+		s = "update"
 	case HTTP:
 		s = "HTTP"
 	}
@@ -41,6 +43,8 @@ func ParseActionType(s string) (at ActionType, err error) {
 	switch s {
 	case "SMS":
 		finalType = SMS
+	case "email":
+		finalType = EMAIL
 	default:
 		return 0, fmt.Errorf("unknown action type %q", s)
 	}
@@ -90,7 +94,7 @@ type SMSAction struct {
 
 func (a *SMSAction) Do(n *Notif) (err error) {
 	mylog.Debugf("enter SMSAction.Do %+v %+v", a, n)
-	defer mylog.Debugf("exit SMSAction.Do  %+v", err)
+	defer func() { mylog.Debugf("exit SMSAction.Do  %+v", err) }()
 
 	err = a.ActionData.template.Execute(os.Stdout, n.Data)
 	return err
@@ -100,8 +104,17 @@ type EmailAction struct {
 	*ActionData
 }
 
-func (a *EmailAction) Do(n *Notif) error {
-	return nil
+func (a *EmailAction) Do(n *Notif) (err error) {
+	mylog.Debugf("enter EmailAction.Do %+v %+v", a, n)
+	defer func() { mylog.Debugf("exit EmailAction.Do  %+v", err) }()
+
+	var buffer bytes.Buffer
+	err = a.ActionData.template.Execute(&buffer, n.Data)
+	err = smtp.SendMail("tid:25", nil,
+		a.Parameters["from"],
+		[]string{a.Parameters["to"]},
+		buffer.Bytes())
+	return err
 }
 
 type UpdateAction struct {
