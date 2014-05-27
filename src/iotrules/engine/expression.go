@@ -2,6 +2,8 @@
 package engine
 
 import (
+	"fmt"
+
 	"iotrules/mylog"
 )
 
@@ -30,5 +32,48 @@ func (e Expression) getString(n *Notif) (str string, err error) {
 		return e.Text, nil
 	} else {
 		return n.GetString(e.Reference)
+	}
+}
+
+func makeExpressionFromJSON(i interface{}, isNumber bool) (exp Expression, err error) {
+	mylog.Debugf("enter makeExpressionFromJSON %+v %+v", i, isNumber)
+	defer func() { mylog.Debugf("exit makeExpressionFromJSON %+v  %+v", exp, err) }()
+
+	switch i := i.(type) {
+	case string:
+		if i[0] == '$' {
+			exp.Reference = i[1:]
+		} else {
+			if !isNumber {
+				exp.Text = i
+			} else {
+				return exp, fmt.Errorf("not numerical value %q in numerical condition")
+			}
+		}
+	case int:
+		if isNumber {
+			exp.Number = float64(i)
+		} else {
+			return exp, fmt.Errorf("numerical value %v in not numerical condition")
+		}
+	case float64:
+		if isNumber {
+			exp.Number = i
+		} else {
+			return exp, fmt.Errorf("numerical value %v in not numerical condition")
+		}
+	default:
+		return exp, fmt.Errorf("invalid type for expression %T", i)
+	}
+	return exp, nil
+}
+
+func (e Expression) ToRuleJSON() interface{} {
+	if e.Reference != "" {
+		return "$" + e.Reference
+	} else if e.Text != "" {
+		return e.Text
+	} else {
+		return e.Number
 	}
 }

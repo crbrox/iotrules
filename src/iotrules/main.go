@@ -10,12 +10,17 @@ import (
 )
 
 func main() {
+	var err error
+
 	fmt.Println("Hello World!")
 	mylog.SetLevel("debug")
 
-	mux := web.Mux()
+	mux, err := web.Mux()
+	if err != nil {
+		mylog.Alert(err)
+	}
 	http.Handle("/", mux)
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		mylog.Alert(err)
 	}

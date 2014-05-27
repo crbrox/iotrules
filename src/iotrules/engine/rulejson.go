@@ -84,36 +84,3 @@ func ParseRuleJSON(data []byte) (rj *RuleJSON, err error) {
 	}
 	return rj, nil
 }
-
-func makeExpressionFromJSON(i interface{}, isNumber bool) (exp Expression, err error) {
-	mylog.Debugf("enter makeExpressionFromJSON %+v %+v", i, isNumber)
-	defer func() { mylog.Debugf("exit makeExpressionFromJSON %+v  %+v", exp, err) }()
-
-	switch i := i.(type) {
-	case string:
-		if i[0] == '$' {
-			exp.Reference = i[1:]
-		} else {
-			if !isNumber {
-				exp.Text = i
-			} else {
-				return exp, fmt.Errorf("not numerical value %q in numerical condition")
-			}
-		}
-	case int:
-		if isNumber {
-			exp.Number = float64(i)
-		} else {
-			return exp, fmt.Errorf("numerical value %v in not numerical condition")
-		}
-	case float64:
-		if isNumber {
-			exp.Number = i
-		} else {
-			return exp, fmt.Errorf("numerical value %v in not numerical condition")
-		}
-	default:
-		return exp, fmt.Errorf("invalid type for expression %T", i)
-	}
-	return exp, nil
-}

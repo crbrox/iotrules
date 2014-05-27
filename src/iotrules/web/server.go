@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"iotrules/engine"
 	"iotrules/mylog"
@@ -12,13 +13,20 @@ import (
 
 var Server WebServer
 
-func Mux() *http.ServeMux {
-	Server := &WebServer{&engine.Engine{}}
-	m := http.NewServeMux()
-	m.HandleFunc("/rules/", handlePanic(Server.Rules))
-	m.HandleFunc("/notif/", handlePanic(Server.Notif))
-	m.HandleFunc("/notifCB/", handlePanic(Server.NotifCB))
-	return m
+func Mux() (mux *http.ServeMux, err error) {
+	mylog.Debugf("enter Mux")
+	defer func() { mylog.Debugf("exit Mux %+v %v", mux, err) }()
+
+	eng, err := engine.NewEngine()
+	if err != nil {
+		return nil, err
+	}
+	Server := &WebServer{eng}
+	mux = http.NewServeMux()
+	mux.HandleFunc("/rules/", handlePanic(Server.Rules))
+	mux.HandleFunc("/notif/", handlePanic(Server.Notif))
+	mux.HandleFunc("/notifCB/", handlePanic(Server.NotifCB))
+	return mux, nil
 
 }
 
@@ -40,10 +48,20 @@ func (ws *WebServer) Rules(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		go func() {
-			ws.engine.AddRule(rule)
-		}()
-		fmt.Fprintf(w, "%s %s\n", r.Method, r.URL)
+		err = ws.engine.AddRule(rule)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Fprintf(w, "{\"id\":%q}\n", rule.ID)
+	case "DELETE":
+		id := strings.TrimPrefix(r.URL.Path, "/rules/")
+		err := ws.engine.DeleteRule(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Fprintf(w, "{\"id\":%q}\n", id)
 	default:
 		http.Error(w, "Not supported", http.StatusMethodNotAllowed)
 		return
