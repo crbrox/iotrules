@@ -25,7 +25,7 @@ func (o Op) String() string {
 	case GT:
 		s = ">"
 	}
-	return fmt.Sprintf("%s(%d)", s, o)
+	return s
 }
 func parseOp(op string) (Op, error) {
 	var finalOp Op

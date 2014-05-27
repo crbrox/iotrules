@@ -33,7 +33,7 @@ func (t ActionType) String() string {
 	case HTTP:
 		s = "HTTP"
 	}
-	return fmt.Sprintf("%s(%d)", s, t)
+	return s
 }
 func ParseActionType(s string) (at ActionType, err error) {
 	mylog.Debugf("enter ParseActionType %q", s)
@@ -53,6 +53,7 @@ func ParseActionType(s string) (at ActionType, err error) {
 
 type Action interface {
 	Do(n *Notif) error
+	Data() *ActionData
 }
 
 type ActionData struct {
@@ -60,6 +61,10 @@ type ActionData struct {
 	TemplateText string
 	Parameters   map[string]string
 	template     *template.Template
+}
+
+func (ad *ActionData) Data() *ActionData {
+	return ad
 }
 
 func NewAction(actionType ActionType, templateString string, parameters map[string]string) (axn Action, err error) {

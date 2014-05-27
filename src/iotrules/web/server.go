@@ -2,6 +2,7 @@
 package web
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -36,6 +37,8 @@ type WebServer struct {
 
 func (ws *WebServer) Rules(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	id := strings.TrimPrefix(r.URL.Path, "/rules/")
+
 	switch r.Method {
 	case "POST":
 		body, err := ioutil.ReadAll(r.Body)
@@ -55,13 +58,42 @@ func (ws *WebServer) Rules(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "{\"id\":%q}\n", rule.ID)
 	case "DELETE":
-		id := strings.TrimPrefix(r.URL.Path, "/rules/")
 		err := ws.engine.DeleteRule(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		fmt.Fprintf(w, "{\"id\":%q}\n", id)
+	case "GET":
+		if id != "" {
+			r, err := ws.engine.GetRule(id)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			data, err := r.RuleJSON().ToJSON()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			fmt.Fprintf(w, "%s\n", data)
+		} else {
+			rs, err := ws.engine.GetAllRules()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			var texts [][]byte
+			for _, r := range rs {
+				data, err := r.RuleJSON().ToJSON()
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				texts = append(texts, data)
+			}
+			fmt.Fprintf(w, "[%s]\n", bytes.Join(texts, []byte{',', '\n'}))
+		}
 	default:
 		http.Error(w, "Not supported", http.StatusMethodNotAllowed)
 		return

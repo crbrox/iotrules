@@ -47,3 +47,24 @@ func (e *Engine) DeleteRule(id string) (err error) {
 	delete(e.Rules, id)
 	return nil
 }
+func (e *Engine) GetRule(id string) (r *Rule, err error) {
+	mylog.Debugf("enter Engine.GetRule %q", id)
+	defer func() { mylog.Debugf("exit Engine.GetRule %+v, %+v", r, err) }()
+
+	e.RLock()
+	defer e.RUnlock()
+	return e.Rules[id], nil
+
+}
+func (e *Engine) GetAllRules() (rs []*Rule, err error) {
+	mylog.Debugf("enter Engine.GetAllRules")
+	defer func() { mylog.Debugf("exit Engine.GetAllRules %+v, %+v", rs, err) }()
+
+	e.RLock()
+	defer e.RUnlock()
+	for _, r := range e.Rules {
+		rs = append(rs, r)
+	}
+	return rs, nil
+
+}

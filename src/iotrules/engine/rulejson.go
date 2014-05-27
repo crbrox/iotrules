@@ -9,6 +9,7 @@ import (
 )
 
 type RuleJSON struct {
+	ID     string     `json:"id,omitempty"`
 	And    []CondJSON `json:"and"`
 	Action ActionJSON `json:"axn"`
 }
@@ -83,4 +84,7 @@ func ParseRuleJSON(data []byte) (rj *RuleJSON, err error) {
 		return nil, err
 	}
 	return rj, nil
+}
+func (rj *RuleJSON) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(rj, "", " ")
 }

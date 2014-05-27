@@ -50,3 +50,26 @@ func (r *Rule) Matched(n *Notif) (matched bool, err error) {
 	}
 	return true, nil
 }
+func (r *Rule) RuleJSON() (rj *RuleJSON) {
+	rj = &RuleJSON{ID: r.ID}
+	cjs := make([]CondJSON, 0, len(r.Conds))
+	for _, c := range r.Conds {
+		e1 := c.Exp1.ToRuleJSON()
+		e2 := c.Exp2.ToRuleJSON()
+		opStr := c.Op.String()
+		typeStr := "string"
+		if c.IsNumber {
+			typeStr = "number"
+		}
+		cJSON := CondJSON{Type: typeStr, Expr: [3]interface{}{e1, opStr, e2}}
+		cjs = append(cjs, cJSON)
+	}
+	rj.And = cjs
+	axnR := r.Action.Data()
+	rj.Action = ActionJSON{
+		Type:       axnR.Type.String(),
+		Template:   axnR.TemplateText,
+		Parameters: axnR.Parameters}
+	return rj
+
+}
