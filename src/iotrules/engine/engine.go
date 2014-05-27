@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"sync"
 
 	"iotrules/mylog"
@@ -53,7 +54,11 @@ func (e *Engine) GetRule(id string) (r *Rule, err error) {
 
 	e.RLock()
 	defer e.RUnlock()
-	return e.Rules[id], nil
+	r, ok := e.Rules[id]
+	if !ok {
+		return nil, fmt.Errorf("rule id %q not found", id)
+	}
+	return r, nil
 
 }
 func (e *Engine) GetAllRules() (rs []*Rule, err error) {
