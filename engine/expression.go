@@ -14,8 +14,10 @@ type Expression struct {
 }
 
 func (e Expression) getNumber(n *Notif) (number float64, err error) {
-	mylog.Debugf("enter Expression.getNumber %+v, %+v", e, n)
-	defer func() { mylog.Debugf("exit Expression.getNumber %+v, %+v", number, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Expression.getNumber %+v, %+v", e, n)
+		defer func() { mylog.Debugf("exit Expression.getNumber %+v, %+v", number, err) }()
+	}
 
 	if e.Reference == "" {
 		return e.Number, nil
@@ -25,8 +27,10 @@ func (e Expression) getNumber(n *Notif) (number float64, err error) {
 }
 
 func (e Expression) getString(n *Notif) (str string, err error) {
-	mylog.Debugf("enter Expression.getString %+v, %+v", e, n)
-	defer func() { mylog.Debugf("exit Expression.getString %+v, %+v", str, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Expression.getString %+v, %+v", e, n)
+		defer func() { mylog.Debugf("exit Expression.getString %+v, %+v", str, err) }()
+	}
 
 	if e.Reference == "" {
 		return e.Text, nil
@@ -36,8 +40,10 @@ func (e Expression) getString(n *Notif) (str string, err error) {
 }
 
 func makeExpressionFromJSON(i interface{}, isNumber bool) (exp Expression, err error) {
-	mylog.Debugf("enter makeExpressionFromJSON %+v %+v", i, isNumber)
-	defer func() { mylog.Debugf("exit makeExpressionFromJSON %+v  %+v", exp, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter makeExpressionFromJSON %+v %+v", i, isNumber)
+		defer func() { mylog.Debugf("exit makeExpressionFromJSON %+v  %+v", exp, err) }()
+	}
 
 	switch i := i.(type) {
 	case string:

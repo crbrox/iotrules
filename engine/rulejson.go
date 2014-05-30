@@ -24,8 +24,10 @@ type ActionJSON struct {
 }
 
 func (rj *RuleJSON) Rule() (pr *Rule, err error) {
-	mylog.Debugf("enter RuleJSON.Rule %+v", rj)
-	defer func() { mylog.Debugf("exit RuleJSON.Rule %+v, %+v", pr, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter RuleJSON.Rule %+v", rj)
+		defer func() { mylog.Debugf("exit RuleJSON.Rule %+v, %+v", pr, err) }()
+	}
 
 	var r Rule
 	condListR := make([]Condition, 0, len(rj.And))
@@ -75,8 +77,10 @@ func (rj *RuleJSON) Rule() (pr *Rule, err error) {
 }
 
 func ParseRuleJSON(data []byte) (rj *RuleJSON, err error) {
-	mylog.Debugf("enter ParseRuleJSON %s", data)
-	defer func() { mylog.Debugf("exit ParseRuleJSON %+v  %+v", rj, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter ParseRuleJSON %s", data)
+		defer func() { mylog.Debugf("exit ParseRuleJSON %+v  %+v", rj, err) }()
+	}
 
 	rj = &RuleJSON{}
 	err = json.Unmarshal(data, rj)

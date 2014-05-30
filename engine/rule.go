@@ -13,8 +13,10 @@ type Rule struct {
 }
 
 func NewRule(body []byte) (r *Rule, err error) {
-	mylog.Debugf("enter NewRule %q", body)
-	defer func() { mylog.Debugf("exit NewRule %+v, %+v", r, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter NewRule %q", body)
+		defer func() { mylog.Debugf("exit NewRule %+v, %+v", r, err) }()
+	}
 
 	rj, err := ParseRuleJSON(body)
 	if err != nil {
@@ -29,8 +31,10 @@ func NewRule(body []byte) (r *Rule, err error) {
 }
 
 func (r *Rule) Do(n *Notif) (err error) {
-	mylog.Debugf("enter Rule.Do %+v %+v", r, n)
-	defer func() { mylog.Debugf("exit Rule.Do %+v", err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Rule.Do %+v %+v", r, n)
+		defer func() { mylog.Debugf("exit Rule.Do %+v", err) }()
+	}
 
 	matched, err := r.Matched(n)
 	if err == nil && matched {
@@ -39,8 +43,10 @@ func (r *Rule) Do(n *Notif) (err error) {
 	return err
 }
 func (r *Rule) Matched(n *Notif) (matched bool, err error) {
-	mylog.Debugf("enter Rule.Matched %+v %+v", r, n)
-	defer func() { mylog.Debugf("exit Rule.Matched %+v  %+v", matched, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Rule.Matched %+v %+v", r, n)
+		defer func() { mylog.Debugf("exit Rule.Matched %+v  %+v", matched, err) }()
+	}
 
 	for _, cond := range r.Conds {
 		matched, err := cond.Matched(n)

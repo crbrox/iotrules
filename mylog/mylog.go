@@ -15,6 +15,8 @@ var (
 	mtx      sync.Mutex
 )
 
+var Debugging = false
+
 const (
 	ALERT = 0
 	INFO  = 6
@@ -34,6 +36,8 @@ func SetLevelInt(lvl int) {
 	mtx.Lock()
 	defer mtx.Unlock()
 	level = lvl
+	Debugging = level == DEBUG
+
 }
 func SetLevel(lvl string) {
 	switch lvl {

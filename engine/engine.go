@@ -13,15 +13,19 @@ type Engine struct {
 }
 
 func NewEngine() (eng *Engine, err error) {
-	mylog.Debugf("enter NewEngine")
-	defer func() { mylog.Debugf("exit NewEngine %+v, %+v", eng, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter NewEngine")
+		defer func() { mylog.Debugf("exit NewEngine %+v, %+v", eng, err) }()
+	}
 
 	eng = &Engine{Rules: map[string]*Rule{}}
 	return eng, nil
 }
 func (e *Engine) Process(n *Notif) (err error) {
-	mylog.Debugf("enter Engine.Process %+v, %+v", e, n)
-	defer func() { mylog.Debugf("exit Engine.Process %+v", err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Engine.Process %+v, %+v", e, n)
+		defer func() { mylog.Debugf("exit Engine.Process %+v", err) }()
+	}
 
 	e.RLock()
 	defer e.RUnlock()
@@ -31,8 +35,10 @@ func (e *Engine) Process(n *Notif) (err error) {
 	return nil
 }
 func (e *Engine) AddRule(r *Rule) (err error) {
-	mylog.Debugf("enter Engine.AddRule %+v", r)
-	defer func() { mylog.Debugf("exit Engine.AddRule %+v", err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Engine.AddRule %+v", r)
+		defer func() { mylog.Debugf("exit Engine.AddRule %+v", err) }()
+	}
 
 	e.Lock()
 	defer e.Unlock()
@@ -40,8 +46,10 @@ func (e *Engine) AddRule(r *Rule) (err error) {
 	return nil
 }
 func (e *Engine) DeleteRule(id string) (err error) {
-	mylog.Debugf("enter Engine.DeleteRule %q", id)
-	defer func() { mylog.Debugf("exit Engine.DeleteRule %+v", err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Engine.DeleteRule %q", id)
+		defer func() { mylog.Debugf("exit Engine.DeleteRule %+v", err) }()
+	}
 
 	e.Lock()
 	defer e.Unlock()
@@ -49,8 +57,10 @@ func (e *Engine) DeleteRule(id string) (err error) {
 	return nil
 }
 func (e *Engine) GetRule(id string) (r *Rule, err error) {
-	mylog.Debugf("enter Engine.GetRule %q", id)
-	defer func() { mylog.Debugf("exit Engine.GetRule %+v, %+v", r, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Engine.GetRule %q", id)
+		defer func() { mylog.Debugf("exit Engine.GetRule %+v, %+v", r, err) }()
+	}
 
 	e.RLock()
 	defer e.RUnlock()
@@ -62,8 +72,10 @@ func (e *Engine) GetRule(id string) (r *Rule, err error) {
 
 }
 func (e *Engine) GetAllRules() (rs []*Rule, err error) {
-	mylog.Debugf("enter Engine.GetAllRules")
-	defer func() { mylog.Debugf("exit Engine.GetAllRules %+v, %+v", rs, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Engine.GetAllRules")
+		defer func() { mylog.Debugf("exit Engine.GetAllRules %+v, %+v", rs, err) }()
+	}
 
 	e.RLock()
 	defer e.RUnlock()

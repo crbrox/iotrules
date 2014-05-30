@@ -27,8 +27,10 @@ type Attribute struct {
 }
 
 func NewNotifFromCB(ngsi []byte, service int) (n *Notif, err error) {
-	mylog.Debugf("enter NewNotifFromCB(%s,%d)\n", ngsi, service)
-	defer func() { mylog.Debugf("exit NewNotifFromCB (%+v,%v)\n", n, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter NewNotifFromCB(%s,%d)\n", ngsi, service)
+		defer func() { mylog.Debugf("exit NewNotifFromCB (%+v,%v)\n", n, err) }()
+	}
 
 	n = &Notif{Data: map[string]interface{}{}}
 	n.ID = uuid.New()

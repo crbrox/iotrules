@@ -14,8 +14,10 @@ type Condition struct {
 }
 
 func (c *Condition) Matched(n *Notif) (matched bool, err error) {
-	mylog.Debugf("enter Condition.Matched %+v, %+v", c, n)
-	defer func() { mylog.Debugf("exit Condition.Matched %+v, %+v ", matched, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Condition.Matched %+v, %+v", c, n)
+		defer func() { mylog.Debugf("exit Condition.Matched %+v, %+v ", matched, err) }()
+	}
 
 	if c.IsNumber {
 		value1, err := c.Exp1.getNumber(n)

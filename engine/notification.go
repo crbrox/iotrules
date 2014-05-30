@@ -20,8 +20,10 @@ type Notif struct {
 }
 
 func NewNotif(data []byte) (n *Notif, err error) {
-	mylog.Debugf("enter NewNotif %q", data)
-	defer func() { mylog.Debugf("exit NewNotif %+v, %+v", n, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter NewNotif %q", data)
+		defer func() { mylog.Debugf("exit NewNotif %+v, %+v", n, err) }()
+	}
 
 	n = &Notif{}
 	n.ID = uuid.New()
@@ -34,8 +36,10 @@ func NewNotif(data []byte) (n *Notif, err error) {
 }
 
 func (n *Notif) GetNumber(exp string) (number float64, err error) {
-	mylog.Debugf("enter Notif.GetNumber %q", exp)
-	defer func() { mylog.Debugf("exit Notif.GetNumber %+v, %+v", number, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Notif.GetNumber %q", exp)
+		defer func() { mylog.Debugf("exit Notif.GetNumber %+v, %+v", number, err) }()
+	}
 
 	strval, err := n.GetString(exp)
 	if err != nil {
@@ -49,8 +53,10 @@ func (n *Notif) GetNumber(exp string) (number float64, err error) {
 }
 
 func (n *Notif) GetString(exp string) (str string, err error) {
-	mylog.Debugf("enter Notif.GetString %q", exp)
-	defer func() { mylog.Debugf("exit Notif.GetString %+v, %+v", str, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter Notif.GetString %q", exp)
+		defer func() { mylog.Debugf("exit Notif.GetString %+v, %+v", str, err) }()
+	}
 
 	fields := strings.Split(exp, ".")
 	d := n.Data
