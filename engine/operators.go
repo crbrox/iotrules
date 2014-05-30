@@ -13,7 +13,6 @@ const (
 )
 
 func (o Op) String() string {
-
 	var s string
 	switch o {
 	case EQ:
