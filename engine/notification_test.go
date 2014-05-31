@@ -10,14 +10,14 @@ func TestNotifGetString(t *testing.T) {
 	var campos = map[string]interface{}{"uno": 1, "cadena": "alfanumerica"}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
 
-	s, err := n.GetString("$uno")
+	s, err := n.GetString("uno")
 	if err != nil {
 		t.Error(err)
 	}
 	if s != "1" {
 		t.Errorf("%q != \"1\"", s)
 	}
-	s, err = n.GetString("$cadena")
+	s, err = n.GetString("cadena")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func TestNotifGetNumber(t *testing.T) {
 	var campos = map[string]interface{}{"uno": 1, "cadena": "alfanumerica"}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
 
-	i, err := n.GetNumber("$uno")
+	i, err := n.GetNumber("uno")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestNotifGetNestedNumber(t *testing.T) {
 				"mas": 1}},
 		"cadena": "alfanumérica"}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
-	i, err := n.GetNumber("$uno.otro.mas")
+	i, err := n.GetNumber("uno.otro.mas")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func TestNotifGetNestedString(t *testing.T) {
 				"mas": "alfanumérica"}},
 		"uno": 1.0}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
-	i, err := n.GetString("$cadena.otro.mas")
+	i, err := n.GetString("cadena.otro.mas")
 	if err != nil {
 		t.Fatal(err)
 	}
