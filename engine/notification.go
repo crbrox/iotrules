@@ -41,15 +41,25 @@ func (n *Notif) GetNumber(exp string) (number float64, err error) {
 		defer func() { mylog.Debugf("exit Notif.GetNumber %+v, %+v", number, err) }()
 	}
 
-	strval, err := n.GetString(exp)
+	//We don't care if it comes as a string or as a number.
+	i, err := n.getElement(exp)
 	if err != nil {
 		return 0, err
 	}
-	value, err := strconv.ParseFloat(strval, 64)
-	if err != nil {
-		return 0, err
+	switch i := i.(type) {
+	case string:
+		num, err := strconv.ParseFloat(i, 64)
+		if err != nil {
+			return 0, err
+		}
+		return num, nil
+	case float64:
+		return i, nil
+	case int:
+		return float64(i), nil
+	default:
+		return 0, fmt.Errorf("%q is not valid ad number (%T)", exp, i)
 	}
-	return value, nil
 }
 
 func (n *Notif) GetString(exp string) (str string, err error) {
@@ -58,8 +68,34 @@ func (n *Notif) GetString(exp string) (str string, err error) {
 		defer func() { mylog.Debugf("exit Notif.GetString %+v, %+v", str, err) }()
 	}
 
-	fields := strings.Split(exp, ".")
+	//We don't care if it comes as a string or as a number.
+	i, err := n.getElement(exp)
+	if err != nil {
+		return "", err
+	}
+	switch i := i.(type) {
+	case string:
+		return i, nil
+	case int, float64, bool:
+		return fmt.Sprint(i), nil
+	default:
+		return "", fmt.Errorf("%q is not an basic type (%T)", exp, i)
+	}
+}
+
+func (n *Notif) getElement(exp string) (str interface{}, err error) {
+	if mylog.Debugging {
+		mylog.Debugf("enter Notif.GetString %q", exp)
+		defer func() { mylog.Debugf("exit Notif.GetString %+v, %+v", str, err) }()
+	}
 	d := n.Data
+	// First check the complete field. Allow "a.b.c" as a valid name
+	// and a litle faster for non-nested fields.
+	if i, ok := d[exp]; ok {
+		return i, nil
+	}
+	// Else we check nested objects
+	fields := strings.Split(exp, ".")
 	for _, f := range fields[:len(fields)-1] {
 		i, ok := d[f]
 		if !ok {
@@ -75,12 +111,6 @@ func (n *Notif) GetString(exp string) (str string, err error) {
 	if !ok {
 		return "", fmt.Errorf("%q not found in notification", last)
 	}
-	switch i := i.(type) {
-	case string:
-		return i, nil
-	case int, float64, bool:
-		return fmt.Sprint(i), nil
-	default:
-		return "", fmt.Errorf("%q is not an basic type in %q", last, exp)
-	}
+	return i, nil
+
 }
