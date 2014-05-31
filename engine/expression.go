@@ -53,20 +53,20 @@ func makeExpressionFromJSON(i interface{}, isNumber bool) (exp Expression, err e
 			if !isNumber {
 				exp.Text = i
 			} else {
-				return exp, fmt.Errorf("not numerical value %q in numerical condition")
+				return exp, fmt.Errorf("non numerical value %q in numerical condition", i)
 			}
 		}
 	case int:
 		if isNumber {
 			exp.Number = float64(i)
 		} else {
-			return exp, fmt.Errorf("numerical value %v in not numerical condition")
+			return exp, fmt.Errorf("numerical value %v in non numerical condition", i)
 		}
 	case float64:
 		if isNumber {
 			exp.Number = i
 		} else {
-			return exp, fmt.Errorf("numerical value %v in not numerical condition")
+			return exp, fmt.Errorf("numerical value %v in non numerical condition", i)
 		}
 	default:
 		return exp, fmt.Errorf("invalid type for expression %T", i)
