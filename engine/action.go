@@ -4,10 +4,14 @@ package engine
 import (
 	"bytes"
 	"fmt"
+	"net/http"
+	"net/http/httputil"
 	"net/smtp"
-	"os"
+	//"os"
+	"strings"
 	"text/template"
 
+	"iotrules/config"
 	"iotrules/mylog"
 )
 
@@ -36,8 +40,10 @@ func (t ActionType) String() string {
 	return s
 }
 func ParseActionType(s string) (at ActionType, err error) {
-	mylog.Debugf("enter ParseActionType %q", s)
-	defer func() { mylog.Debugf("exit ParseActionType %+v, %+v ", at, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter ParseActionType %q", s)
+		defer func() { mylog.Debugf("exit ParseActionType %+v, %+v ", at, err) }()
+	}
 
 	var finalType ActionType
 	switch s {
@@ -68,8 +74,10 @@ func (ad *ActionData) Data() *ActionData {
 }
 
 func NewAction(actionType ActionType, templateString string, parameters map[string]string) (axn Action, err error) {
-	mylog.Debugf("enter NewAction %+v, %q, %+v", actionType, templateString, parameters)
-	defer func() { mylog.Debugf("exit NewAction %+v, %+v ", axn, err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter NewAction %+v, %q, %+v", actionType, templateString, parameters)
+		defer func() { mylog.Debugf("exit NewAction %+v, %+v ", axn, err) }()
+	}
 
 	var ad = &ActionData{Type: actionType, TemplateText: templateString, Parameters: parameters}
 	t, err := template.New("").Parse(templateString)
@@ -98,10 +106,27 @@ type SMSAction struct {
 }
 
 func (a *SMSAction) Do(n *Notif) (err error) {
-	mylog.Debugf("enter SMSAction.Do %+v %+v", a, n)
-	defer func() { mylog.Debugf("exit SMSAction.Do  %+v", err) }()
+	if mylog.Debugging {
+		defer func() { mylog.Debugf("exit SMSAction.Do  %+v", err) }()
+	}
 
-	err = a.ActionData.template.Execute(os.Stdout, n.Data)
+	var buffer bytes.Buffer
+	err = a.ActionData.template.Execute(&buffer, n.Data)
+	fmt.Println(buffer)
+	fmt.Println(a.Parameters)
+	msg := fmt.Sprintf(`{"to":["tel:%s"], "message": %q}`, a.Parameters["to"], buffer.String())
+	fmt.Println(msg)
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", config.SMSEndpoint(), strings.NewReader(msg))
+	req.Header.Add("API_KEY", config.APIKey())
+	req.Header.Add("API_SECRET", config.APISecret())
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	reqDump, err := httputil.DumpRequest(req, true)
+	fmt.Printf("\n****** REQUEST\n%s %v\n******\n\n", reqDump, err)
+	respDump, err := httputil.DumpResponse(resp, true)
+	fmt.Printf("\n****** RESPONSE\n%s %v\n******\n\n", respDump, err)
+	fmt.Println(resp)
 	return err
 }
 
@@ -110,12 +135,14 @@ type EmailAction struct {
 }
 
 func (a *EmailAction) Do(n *Notif) (err error) {
-	mylog.Debugf("enter EmailAction.Do %+v %+v", a, n)
-	defer func() { mylog.Debugf("exit EmailAction.Do  %+v", err) }()
+	if mylog.Debugging {
+		mylog.Debugf("enter EmailAction.Do %+v %+v", a, n)
+		defer func() { mylog.Debugf("exit EmailAction.Do  %+v", err) }()
+	}
 
 	var buffer bytes.Buffer
 	err = a.ActionData.template.Execute(&buffer, n.Data)
-	err = smtp.SendMail("tid:25", nil,
+	err = smtp.SendMail(config.SMTPServer(), nil,
 		a.Parameters["from"],
 		[]string{a.Parameters["to"]},
 		buffer.Bytes())
