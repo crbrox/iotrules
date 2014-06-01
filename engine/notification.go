@@ -58,7 +58,7 @@ func (n *Notif) GetNumber(exp string) (number float64, err error) {
 	case int:
 		return float64(i), nil
 	default:
-		return 0, fmt.Errorf("%q is not valid ad number (%T)", exp, i)
+		return 0, fmt.Errorf("%q is not valid as number (%T)", exp, i)
 	}
 }
 
@@ -79,7 +79,7 @@ func (n *Notif) GetString(exp string) (str string, err error) {
 	case int, float64, bool:
 		return fmt.Sprint(i), nil
 	default:
-		return "", fmt.Errorf("%q is not an basic type (%T)", exp, i)
+		return "", fmt.Errorf("%q is not a basic type (%T)", exp, i)
 	}
 }
 
@@ -99,7 +99,7 @@ func (n *Notif) getElement(exp string) (str interface{}, err error) {
 	for _, f := range fields[:len(fields)-1] {
 		i, ok := d[f]
 		if !ok {
-			return "", fmt.Errorf("%q not found in notification", f)
+			return "", &ErrorNotFound{Field: exp, Part: f, Notif: n}
 		}
 		d, ok = i.(map[string]interface{})
 		if !ok {
@@ -109,8 +109,18 @@ func (n *Notif) getElement(exp string) (str interface{}, err error) {
 	last := fields[len(fields)-1]
 	i, ok := d[last]
 	if !ok {
-		return "", fmt.Errorf("%q not found in notification", last)
+		return "", &ErrorNotFound{Field: exp, Part: last, Notif: n}
 	}
 	return i, nil
 
+}
+
+type ErrorNotFound struct {
+	Field string
+	Part  string
+	Notif *Notif
+}
+
+func (e *ErrorNotFound) Error() string {
+	return fmt.Sprintf("%q in %q not found in notification", e.Part, e.Field)
 }
