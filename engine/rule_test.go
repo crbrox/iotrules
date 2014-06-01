@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 )
@@ -12,21 +10,26 @@ func TestSimpleMatch(t *testing.T) {
 		"cadena": map[string]interface{}{
 			"otro": map[string]interface{}{
 				"mas": "alfanumérica"}},
-		"uno": 1.0}
+		"uno": 1.0,
+		"numero": map[string]interface{}{
+			"otro": map[string]interface{}{
+				"mas": "2.0"}}}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
 
-	var cases = []struct {
-		Op     Op
-		E1, E2 string
-		IsN    bool
-	}{
-		{EQ, "$uno", "1", true},
-		{GT, "$uno", "0", true},
-		{LT, "$uno", "3", true},
-		{NE, "$uno", "2", true},
+	var (
+		condAlfa = Condition{Op: EQ, Exp1: Expression{Reference: "cadena.otro.mas"}, Exp2: Expression{Text: "alfanumérica"}, IsNumber: false}
+		condOne  = Condition{Op: EQ, Exp1: Expression{Reference: "uno"}, Exp2: Expression{Number: 1.0}, IsNumber: true}
+		condTwo  = Condition{Op: EQ, Exp1: Expression{Reference: "numero.otro.mas"}, Exp2: Expression{Number: 2.0}, IsNumber: true}
+	)
+
+	var cases = [][]Condition{
+		{condAlfa}, {condOne}, {condTwo},
+		{condAlfa, condOne}, {condOne, condAlfa}, {condTwo, condOne}, {condOne, condTwo},
+		{condAlfa, condOne, condTwo}, {condOne, condAlfa, condTwo}, {condTwo, condOne, condAlfa}, {condOne, condTwo, condAlfa},
 	}
+
 	for _, c := range cases {
-		var rule = Rule{Op: c.Op, Exp1: c.E1, Exp2: c.E2, IsNumber: c.IsN}
+		var rule = Rule{Conds: c}
 		b, e := rule.Matched(&n)
 		if e != nil {
 			t.Fatal(e)
@@ -38,55 +41,90 @@ func TestSimpleMatch(t *testing.T) {
 	}
 
 }
+
 func TestSimpleNotMatch(t *testing.T) {
 	var campos = map[string]interface{}{
 		"cadena": map[string]interface{}{
 			"otro": map[string]interface{}{
 				"mas": "alfanumérica"}},
-		"uno": 1.0}
+		"uno": 1.0,
+		"numero": map[string]interface{}{
+			"otro": map[string]interface{}{
+				"mas": "2.0"}}}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
 
-	var rule = Rule{Op: EQ, Exp1: "$uno", Exp2: "2", IsNumber: true}
-	b, e := rule.Matched(&n)
-	if e != nil {
-		t.Fatal(e)
+	var (
+		condFalse = Condition{Op: EQ, Exp1: Expression{Reference: "uno"}, Exp2: Expression{Number: 1.0000001}, IsNumber: true}
+		condAlfa  = Condition{Op: EQ, Exp1: Expression{Reference: "cadena.otro.mas"}, Exp2: Expression{Text: "alfanumérica"}, IsNumber: false}
+		condOne   = Condition{Op: EQ, Exp1: Expression{Reference: "uno"}, Exp2: Expression{Number: 1.0}, IsNumber: true}
+		condTwo   = Condition{Op: EQ, Exp1: Expression{Reference: "numero.otro.mas"}, Exp2: Expression{Number: 2.0}, IsNumber: true}
+	)
+
+	var cases = [][]Condition{
+		{condFalse},
+		{condAlfa, condFalse}, {condOne, condFalse}, {condTwo, condFalse},
+		{condFalse, condAlfa}, {condFalse, condOne}, {condFalse, condTwo},
+		{condFalse, condFalse},
+		{condAlfa, condOne, condTwo, condFalse},
+		{condOne, condFalse, condAlfa, condTwo},
+		{condTwo, condOne, condFalse, condAlfa},
+		{condOne, condTwo, condAlfa, condFalse},
 	}
-	if b {
-		t.Fatalf("%+v should NOT match %+v\n", n, rule)
+
+	for _, c := range cases {
+		var rule = Rule{Conds: c}
+		b, e := rule.Matched(&n)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if b {
+			t.Fatalf("%+v should not match %+v\n", n, rule)
+		}
+
 	}
+
 }
-func TestStringMatch(t *testing.T) {
+func TestSimpleNotFound(t *testing.T) {
 	var campos = map[string]interface{}{
 		"cadena": map[string]interface{}{
 			"otro": map[string]interface{}{
 				"mas": "alfanumérica"}},
-		"uno": 1.0}
+		"uno": 1.0,
+		"numero": map[string]interface{}{
+			"otro": map[string]interface{}{
+				"mas": "2.0"}}}
 	var n = Notif{ID: "example_id", Received: time.Now(), Data: campos}
 
-	var rule = Rule{Op: EQ, Exp1: "$cadena.otro.mas", Exp2: "alfanumérica"}
-	b, e := rule.Matched(&n)
-	if e != nil {
-		t.Fatal(e)
-	}
-	if !b {
-		t.Fatalf("%+v should match %+v\n", n, rule)
-	}
-}
-func TestFromDataSimple(t *testing.T) {
-	data := map[string]interface{}{
-		"op":       ">",
-		"ls":       "$a",
-		"rs":       "3",
-		"isNumber": true,
-		"type":     "SMS",
-	}
-	r, err := FromMap(data)
-	if err != nil {
-		t.Fatal(err)
+	var (
+		condInexistent = Condition{Op: EQ, Exp1: Expression{Reference: "cadena.otro.jalapeño"}, Exp2: Expression{Number: 1.0}, IsNumber: true}
+		condAlfa       = Condition{Op: EQ, Exp1: Expression{Reference: "cadena.otro.mas"}, Exp2: Expression{Text: "alfanumérica"}, IsNumber: false}
+		condOne        = Condition{Op: EQ, Exp1: Expression{Reference: "uno"}, Exp2: Expression{Number: 1.0}, IsNumber: true}
+		condTwo        = Condition{Op: EQ, Exp1: Expression{Reference: "numero.otro.mas"}, Exp2: Expression{Number: 2.0}, IsNumber: true}
+	)
+
+	var cases = [][]Condition{
+		{condInexistent},
+		{condAlfa, condInexistent}, {condOne, condInexistent}, {condTwo, condInexistent},
+		{condInexistent, condAlfa}, {condInexistent, condOne}, {condInexistent, condTwo},
+		{condInexistent, condInexistent},
+		{condAlfa, condOne, condTwo, condInexistent},
+		{condOne, condInexistent, condAlfa, condTwo},
+		{condTwo, condOne, condInexistent, condAlfa},
+		{condOne, condTwo, condAlfa, condInexistent},
 	}
 
-	//Use gocheck !!!!!
-	if r.Op != GT {
-		t.Fatalf("operator %d should be SMS(%d)", r.Op, GT)
+	for _, c := range cases {
+		var rule = Rule{Conds: c}
+		b, e := rule.Matched(&n)
+		if b {
+			t.Fatalf("%+v should not match %+v\n", n, rule)
+		}
+		if e != nil {
+			if _, ok := e.(*ErrorNotFound); !ok {
+				t.Fatal(e)
+			}
+		}
+
 	}
+
 }
