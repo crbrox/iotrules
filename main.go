@@ -22,7 +22,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	mux, err := web.Mux()
+	mux, err := web.Mux([]string{"", "6000", "otro"})
 	if err != nil {
 		mylog.Alert(err)
 	}

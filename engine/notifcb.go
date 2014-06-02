@@ -45,6 +45,7 @@ func NewNotifFromCB(ngsi []byte, service int) (n *Notif, err error) {
 
 	n.Data["id"] = ncr.ContextResponses[0].ContextElement.Id
 	n.Data["type"] = ncr.ContextResponses[0].ContextElement.Type
+	n.Data["isPattern"] = ncr.ContextResponses[0].ContextElement.IsPattern
 	for _, attr := range ncr.ContextResponses[0].ContextElement.Attributes {
 		n.Data[attr.Name] = attr.Value
 	}

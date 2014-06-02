@@ -7,12 +7,16 @@ import (
 
 var port string
 var (
-	smsEnPoint string
-	apiSecret  string
-	apiKey     string
+	smsEndPoint string
+	apiSecret   string
+	apiKey      string
 )
 var (
 	smtpServer string
+)
+
+var (
+	updateEndPoint string
 )
 
 var loaded bool = false
@@ -35,7 +39,7 @@ func LoadConfig(filename string) (err error) {
 		return fmt.Errorf("config port is mandatory")
 	}
 
-	smsEnPoint, found = str("SMS.endpoint")
+	smsEndPoint, found = str("SMS.endpoint")
 	if !found {
 		return fmt.Errorf("config SMS.endpoint is mandatory")
 	}
@@ -55,11 +59,17 @@ func LoadConfig(filename string) (err error) {
 		return fmt.Errorf("config SMS.endpoint is mandatory")
 	}
 
+	updateEndPoint, found = str("update.endpoint")
+	if !found {
+		return fmt.Errorf("config update.endpoint is mandatory")
+	}
+
 	return nil
 }
 
-func Port() string        { return port }
-func SMSEndpoint() string { return smsEnPoint }
-func APIKey() string      { return apiKey }
-func APISecret() string   { return apiSecret }
-func SMTPServer() string  { return smtpServer }
+func Port() string           { return port }
+func SMSEndpoint() string    { return smsEndPoint }
+func APIKey() string         { return apiKey }
+func APISecret() string      { return apiSecret }
+func SMTPServer() string     { return smtpServer }
+func UpdateEndpoint() string { return updateEndPoint }
