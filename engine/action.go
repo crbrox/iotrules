@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/smtp"
-	//"os"
 	"strings"
 	"text/template"
 
@@ -121,9 +120,8 @@ func (a *SMSAction) Do(n *Notif) (err error) {
 	req.Header.Add("API_KEY", config.APIKey())
 	req.Header.Add("API_SECRET", config.APISecret())
 	req.Header.Add("Content-Type", "application/json")
+	fmt.Printf("\n****** REQUEST\n%s %v\n******\n\n", msg, err)
 	resp, err := client.Do(req)
-	reqDump, err := httputil.DumpRequest(req, true)
-	fmt.Printf("\n****** REQUEST\n%s %v\n******\n\n", reqDump, err)
 	respDump, err := httputil.DumpResponse(resp, true)
 	fmt.Printf("\n****** RESPONSE\n%s %v\n******\n\n", respDump, err)
 	fmt.Println(resp)
